@@ -16,9 +16,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-
+import org.apache.log4j.Logger;
 public class NetflixMovieSelectionTest {
-
+	 static final Logger logger = Logger.getLogger(NetflixMovieSelectionTest.class);
     WebDriver driver;
     WebDriverWait wait;
     boolean executionOnce = true;
@@ -41,14 +41,11 @@ public class NetflixMovieSelectionTest {
 
     @Test(dataProvider = "movieData")
     public void addMoviesToMyList(String movieToSelect, String searchMovie) throws InterruptedException {
-        // Select profile
-      
-    	   System.out.println("Adding movie: " + movieToSelect + " with search keyword: " + searchMovie);
-    	   
+    	   logger.info("Adding movie: " + movieToSelect + " with search keyword: " + searchMovie);
     	   if (executionOnce) {
                wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("searchTab")));
                driver.findElement(By.className("searchTab")).click();
-               executionOnce = false; // Set flag to false after first execution
+               executionOnce = false;
            }
         driver.findElement(By.id("searchInput")).sendKeys(searchMovie);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//p[text()='" + movieToSelect + "']")));
@@ -62,8 +59,8 @@ public class NetflixMovieSelectionTest {
 
             String dataUiaValue = element.getAttribute("data-uia");
             if (dataUiaValue.equalsIgnoreCase("add-to-my-list")) {
-                System.out.println("Adding movie: " + movieToSelect);
-                element.click(); // Clicks to add the movie to "My List"
+                logger.info("Adding movie: " + movieToSelect);
+                element.click();
             }
 
 
@@ -75,30 +72,27 @@ public class NetflixMovieSelectionTest {
 
     @Test(dependsOnMethods = "addMoviesToMyList")
     public void verifyMoviesInMyList() {
-        // Go to "My List"
         WebElement MyList = driver.findElement(By.xpath("//div[@class='pinning-header']//li[@class='navigation-tab']/a[text()='My List']"));
         MyList.click();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(6));
 
         List<WebElement> moviesList = driver.findElements(By.xpath("//div[@class='galleryContent']//div[@class='galleryLockups']//div[@class='sliderContent row-with-x-columns']//div[contains(@class,'slider-item')]//div[@class='fallback-text-container']//p"));
 
-        // List of movies to verify
         String[] moviesToVerify = {"GOAT - The Greatest of All Time", "Inception", "Venom: Let There Be Carnage"};
         boolean allMoviesAdded = true;
 
-        // Check if all movies are present in "My List"
         for (String movie : moviesToVerify) {
             boolean movieFound = false;
             for (WebElement movieElement : moviesList) {
                 if (movieElement.getText().equalsIgnoreCase(movie)) {
-                    System.out.println("Movie found in My List: " + movie);
+                    logger.info("Movie found in My List: " + movie);
                     movieFound = true;
                     break;
                 }
             }
             if (!movieFound) {
                 allMoviesAdded = false;
-                System.out.println("Movie not found in My List: " + movie);
+                logger.info("Movie not found in My List: " + movie);
             }
         }
         Assert.assertTrue(allMoviesAdded, "Some movies were not found in My List.");
