@@ -5,7 +5,7 @@
     <classes>
       <class name="CITI_Project.CITI_Project_Netflix.NetflixMovieSelectionTest">
         <methods>
-          <include name="addMoviesToMyList" invocation-numbers="1 2"/>
+          <include name="addMoviesToMyList"/>
           <include name="setUp"/>
           <include name="verifyMoviesInMyList"/>
           <include name="tearDown"/>
